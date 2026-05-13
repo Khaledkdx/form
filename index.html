@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>نموذج تسجيل المندوبين</title>
+<title>نموذج تسجيل المندوبين | Driver Registration Form</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tahoma', 'Arial', sans-serif; }
   body {
@@ -24,9 +24,26 @@
     color: #fff;
     padding: 30px;
     text-align: center;
+    position: relative;
   }
   .header h1 { font-size: 26px; margin-bottom: 8px; }
   .header p { font-size: 14px; opacity: 0.9; }
+  .lang-switch {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.4);
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    transition: 0.2s;
+  }
+  html[dir="ltr"] .lang-switch { left: auto; right: 15px; }
+  .lang-switch:hover { background: rgba(255,255,255,0.35); }
   form { padding: 30px; }
   .section-title {
     background: #f4f6f8;
@@ -37,6 +54,7 @@
     color: #2c3e50;
     border-radius: 5px;
   }
+  html[dir="ltr"] .section-title { border-right: none; border-left: 4px solid #4ca1af; }
   .row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -52,14 +70,9 @@
     font-weight: 600;
   }
   label .req { color: #e74c3c; }
-  input[type="text"],
-  input[type="email"],
-  input[type="tel"],
-  input[type="date"],
-  input[type="number"],
-  input[type="file"],
-  select,
-  textarea {
+  input[type="text"], input[type="email"], input[type="tel"],
+  input[type="date"], input[type="number"], input[type="file"],
+  select, textarea {
     padding: 10px 12px;
     border: 1px solid #d0d7de;
     border-radius: 8px;
@@ -94,6 +107,8 @@
     margin-left: 6px;
     cursor: pointer;
   }
+  html[dir="ltr"] .radio-group input,
+  html[dir="ltr"] .checkbox-group input { margin-left: 0; margin-right: 6px; }
   .radio-group label:hover, .checkbox-group label:hover {
     background: #e8f4f7;
     border-color: #4ca1af;
@@ -122,12 +137,10 @@
     text-align: center;
     display: none;
   }
-  .alert.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
   .alert.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
   .spinner {
     display: inline-block;
-    width: 16px;
-    height: 16px;
+    width: 16px; height: 16px;
     border: 2px solid #fff;
     border-top-color: transparent;
     border-radius: 50%;
@@ -145,265 +158,289 @@
 <body>
 <div class="container">
   <div class="header">
-    <h1>نموذج تسجيل المندوبين</h1>
-    <p>يرجى تعبئة جميع الحقول المطلوبة بدقة</p>
+    <button type="button" class="lang-switch" id="langSwitch">English</button>
+    <h1 data-ar="نموذج تسجيل المندوبين" data-en="Driver Registration Form">نموذج تسجيل المندوبين</h1>
+    <p data-ar="يرجى تعبئة جميع الحقول المطلوبة بدقة" data-en="Please fill in all required fields carefully">يرجى تعبئة جميع الحقول المطلوبة بدقة</p>
   </div>
 
   <form id="driverForm" enctype="multipart/form-data">
 
-    <div class="section-title">المعلومات الشخصية</div>
+    <div class="section-title" data-ar="المعلومات الشخصية" data-en="Personal Information">المعلومات الشخصية</div>
     <div class="row">
       <div class="field">
-        <label>الاسم الكامل <span class="req">*</span></label>
-        <input type="text" name="fullName" required placeholder="الاسم رباعي">
+        <label><span data-ar="الاسم الكامل" data-en="Full Name">الاسم الكامل</span> <span class="req">*</span></label>
+        <input type="text" name="fullName" required data-ar-ph="الاسم رباعي" data-en-ph="Full name (4 parts)" placeholder="الاسم رباعي">
       </div>
       <div class="field">
-        <label>الجنسية <span class="req">*</span></label>
+        <label><span data-ar="الجنسية" data-en="Nationality">الجنسية</span> <span class="req">*</span></label>
         <select name="nationality" required>
-          <option value="">-- اختر الجنسية --</option>
-          <option>سعودي</option>
-          <option>مصري</option>
-          <option>يمني</option>
-          <option>سوري</option>
-          <option>سوداني</option>
-          <option>باكستاني</option>
-          <option>هندي</option>
-          <option>بنغلاديشي</option>
-          <option>فلبيني</option>
-          <option>إثيوبي</option>
-          <option>أخرى</option>
+          <option value="" data-ar="-- اختر الجنسية --" data-en="-- Select nationality --">-- اختر الجنسية --</option>
+          <option data-ar="سعودي" data-en="Saudi">سعودي</option>
+          <option data-ar="مصري" data-en="Egyptian">مصري</option>
+          <option data-ar="يمني" data-en="Yemeni">يمني</option>
+          <option data-ar="سوري" data-en="Syrian">سوري</option>
+          <option data-ar="سوداني" data-en="Sudanese">سوداني</option>
+          <option data-ar="باكستاني" data-en="Pakistani">باكستاني</option>
+          <option data-ar="هندي" data-en="Indian">هندي</option>
+          <option data-ar="بنغلاديشي" data-en="Bangladeshi">بنغلاديشي</option>
+          <option data-ar="فلبيني" data-en="Filipino">فلبيني</option>
+          <option data-ar="إثيوبي" data-en="Ethiopian">إثيوبي</option>
+          <option data-ar="أخرى" data-en="Other">أخرى</option>
         </select>
       </div>
     </div>
 
     <div class="row">
       <div class="field">
-        <label>رقم الإقامة / الهوية الوطنية <span class="req">*</span></label>
-        <input type="text" name="idNumber" maxlength="10" pattern="[0-9]{10}" required placeholder="10 أرقام">
+        <label><span data-ar="رقم الإقامة / الهوية الوطنية" data-en="Iqama / National ID Number">رقم الإقامة / الهوية الوطنية</span> <span class="req">*</span></label>
+        <input type="text" name="idNumber" maxlength="10" pattern="[0-9]{10}" required data-ar-ph="10 أرقام" data-en-ph="10 digits" placeholder="10 أرقام">
       </div>
       <div class="field">
-        <label>تاريخ انتهاء الإقامة / الهوية <span class="req">*</span></label>
+        <label><span data-ar="تاريخ انتهاء الإقامة / الهوية" data-en="ID / Iqama Expiry Date">تاريخ انتهاء الإقامة / الهوية</span> <span class="req">*</span></label>
         <input type="date" name="idExpiry" required>
       </div>
     </div>
 
     <div class="row">
       <div class="field">
-        <label>تاريخ الميلاد <span class="req">*</span></label>
+        <label><span data-ar="تاريخ الميلاد" data-en="Date of Birth">تاريخ الميلاد</span> <span class="req">*</span></label>
         <input type="date" name="birthDate" required>
       </div>
       <div class="field">
-        <label>المهنة <span class="req">*</span></label>
-        <input type="text" name="job" required placeholder="حسب الإقامة">
+        <label><span data-ar="المهنة" data-en="Profession">المهنة</span> <span class="req">*</span></label>
+        <input type="text" name="job" required data-ar-ph="حسب الإقامة" data-en-ph="As per Iqama" placeholder="حسب الإقامة">
       </div>
     </div>
 
-    <div class="section-title">معلومات التواصل</div>
+    <div class="section-title" data-ar="معلومات التواصل" data-en="Contact Information">معلومات التواصل</div>
     <div class="row">
       <div class="field">
-        <label>رقم الجوال <span class="req">*</span></label>
+        <label><span data-ar="رقم الجوال" data-en="Mobile Number">رقم الجوال</span> <span class="req">*</span></label>
         <input type="tel" name="mobile" pattern="05[0-9]{8}" maxlength="10" required placeholder="05xxxxxxxx">
       </div>
       <div class="field">
-        <label>البريد الإلكتروني <span class="req">*</span></label>
+        <label><span data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</span> <span class="req">*</span></label>
         <input type="email" name="email" required placeholder="example@email.com">
       </div>
     </div>
 
-    <div class="section-title">معلومات الرخصة والمركبة</div>
+    <div class="section-title" data-ar="معلومات الرخصة والمركبة" data-en="License & Vehicle Information">معلومات الرخصة والمركبة</div>
     <div class="field">
-      <label>هل لديك رخصة قيادة؟ <span class="req">*</span></label>
+      <label><span data-ar="هل لديك رخصة قيادة؟" data-en="Do you have a driving license?">هل لديك رخصة قيادة؟</span> <span class="req">*</span></label>
       <div class="radio-group">
-        <label><input type="radio" name="hasLicense" value="نعم" required> نعم</label>
-        <label><input type="radio" name="hasLicense" value="لا"> لا</label>
+        <label><input type="radio" name="hasLicense" value="نعم" required> <span data-ar="نعم" data-en="Yes">نعم</span></label>
+        <label><input type="radio" name="hasLicense" value="لا"> <span data-ar="لا" data-en="No">لا</span></label>
       </div>
     </div>
 
     <div class="row">
       <div class="field">
-        <label>نوع الرخصة</label>
+        <label data-ar="نوع الرخصة" data-en="License Type">نوع الرخصة</label>
         <select name="licenseType">
-          <option value="">-- اختر نوع الرخصة --</option>
-          <option>خصوصي</option>
-          <option>دراجة نارية</option>
-          <option>نقل خفيف</option>
-          <option>نقل ثقيل</option>
-          <option>عمومي (أجرة)</option>
-          <option>إنشائية</option>
+          <option value="" data-ar="-- اختر نوع الرخصة --" data-en="-- Select license type --">-- اختر نوع الرخصة --</option>
+          <option data-ar="خصوصي" data-en="Private">خصوصي</option>
+          <option data-ar="دراجة نارية" data-en="Motorcycle">دراجة نارية</option>
+          <option data-ar="نقل خفيف" data-en="Light Transport">نقل خفيف</option>
+          <option data-ar="نقل ثقيل" data-en="Heavy Transport">نقل ثقيل</option>
+          <option data-ar="عمومي (أجرة)" data-en="Public (Taxi)">عمومي (أجرة)</option>
+          <option data-ar="إنشائية" data-en="Construction">إنشائية</option>
         </select>
       </div>
       <div class="field">
-        <label>تاريخ انتهاء الرخصة</label>
+        <label data-ar="تاريخ انتهاء الرخصة" data-en="License Expiry Date">تاريخ انتهاء الرخصة</label>
         <input type="date" name="licenseExpiry">
       </div>
     </div>
 
     <div class="field">
-      <label>هل لديك مركبة خاصة؟ <span class="req">*</span></label>
+      <label><span data-ar="هل لديك مركبة خاصة؟" data-en="Do you own a vehicle?">هل لديك مركبة خاصة؟</span> <span class="req">*</span></label>
       <div class="radio-group">
-        <label><input type="radio" name="hasVehicle" value="نعم" required> نعم</label>
-        <label><input type="radio" name="hasVehicle" value="لا"> لا</label>
+        <label><input type="radio" name="hasVehicle" value="نعم" required> <span data-ar="نعم" data-en="Yes">نعم</span></label>
+        <label><input type="radio" name="hasVehicle" value="لا"> <span data-ar="لا" data-en="No">لا</span></label>
       </div>
     </div>
 
-    <div class="section-title">معلومات العمل</div>
+    <div class="section-title" data-ar="معلومات العمل" data-en="Work Information">معلومات العمل</div>
     <div class="row">
       <div class="field">
-        <label>المدينة التي ترغب بالعمل فيها <span class="req">*</span></label>
+        <label><span data-ar="المدينة التي ترغب بالعمل فيها" data-en="Preferred work city">المدينة التي ترغب بالعمل فيها</span> <span class="req">*</span></label>
         <select name="city" required>
-          <option value="">-- اختر المدينة --</option>
-          <option>الرياض</option>
-          <option>جدة</option>
-          <option>مكة المكرمة</option>
-          <option>المدينة المنورة</option>
-          <option>الدمام</option>
-          <option>الخبر</option>
-          <option>الظهران</option>
-          <option>الطائف</option>
-          <option>تبوك</option>
-          <option>أبها</option>
-          <option>خميس مشيط</option>
-          <option>بريدة</option>
-          <option>حائل</option>
-          <option>جازان</option>
-          <option>نجران</option>
-          <option>ينبع</option>
-          <option>أخرى</option>
+          <option value="" data-ar="-- اختر المدينة --" data-en="-- Select city --">-- اختر المدينة --</option>
+          <option data-ar="الرياض" data-en="Riyadh">الرياض</option>
+          <option data-ar="جدة" data-en="Jeddah">جدة</option>
+          <option data-ar="مكة المكرمة" data-en="Makkah">مكة المكرمة</option>
+          <option data-ar="المدينة المنورة" data-en="Madinah">المدينة المنورة</option>
+          <option data-ar="الدمام" data-en="Dammam">الدمام</option>
+          <option data-ar="الخبر" data-en="Khobar">الخبر</option>
+          <option data-ar="الظهران" data-en="Dhahran">الظهران</option>
+          <option data-ar="الطائف" data-en="Taif">الطائف</option>
+          <option data-ar="تبوك" data-en="Tabuk">تبوك</option>
+          <option data-ar="أبها" data-en="Abha">أبها</option>
+          <option data-ar="خميس مشيط" data-en="Khamis Mushait">خميس مشيط</option>
+          <option data-ar="بريدة" data-en="Buraidah">بريدة</option>
+          <option data-ar="حائل" data-en="Hail">حائل</option>
+          <option data-ar="جازان" data-en="Jazan">جازان</option>
+          <option data-ar="نجران" data-en="Najran">نجران</option>
+          <option data-ar="ينبع" data-en="Yanbu">ينبع</option>
+          <option data-ar="أخرى" data-en="Other">أخرى</option>
         </select>
       </div>
       <div class="field">
-        <label>هل يمكنك الانتقال لأي مدينة للعمل؟ <span class="req">*</span></label>
+        <label><span data-ar="هل يمكنك الانتقال لأي مدينة للعمل؟" data-en="Can you relocate to any city for work?">هل يمكنك الانتقال لأي مدينة للعمل؟</span> <span class="req">*</span></label>
         <div class="radio-group">
-          <label><input type="radio" name="canRelocate" value="نعم" required> نعم</label>
-          <label><input type="radio" name="canRelocate" value="لا"> لا</label>
+          <label><input type="radio" name="canRelocate" value="نعم" required> <span data-ar="نعم" data-en="Yes">نعم</span></label>
+          <label><input type="radio" name="canRelocate" value="لا"> <span data-ar="لا" data-en="No">لا</span></label>
         </div>
       </div>
     </div>
 
     <div class="field">
-      <label>هل سبق لك العمل في شركة لوجستيات؟ <span class="req">*</span></label>
+      <label><span data-ar="هل سبق لك العمل في شركة لوجستيات؟" data-en="Have you worked in a logistics company before?">هل سبق لك العمل في شركة لوجستيات؟</span> <span class="req">*</span></label>
       <div class="radio-group">
-        <label><input type="radio" name="logisticsExp" value="نعم" required> نعم</label>
-        <label><input type="radio" name="logisticsExp" value="لا"> لا</label>
+        <label><input type="radio" name="logisticsExp" value="نعم" required> <span data-ar="نعم" data-en="Yes">نعم</span></label>
+        <label><input type="radio" name="logisticsExp" value="لا"> <span data-ar="لا" data-en="No">لا</span></label>
       </div>
     </div>
 
     <div class="row">
       <div class="field">
-        <label>هل ترغب بنقل الكفالة؟ <span class="req">*</span></label>
+        <label><span data-ar="هل ترغب بنقل الكفالة؟" data-en="Do you want sponsorship transfer?">هل ترغب بنقل الكفالة؟</span> <span class="req">*</span></label>
         <div class="radio-group">
-          <label><input type="radio" name="transferSponsor" value="نعم" required> نعم</label>
-          <label><input type="radio" name="transferSponsor" value="لا"> لا</label>
-          <label><input type="radio" name="transferSponsor" value="غير مطلوب"> غير مطلوب</label>
+          <label><input type="radio" name="transferSponsor" value="نعم" required> <span data-ar="نعم" data-en="Yes">نعم</span></label>
+          <label><input type="radio" name="transferSponsor" value="لا"> <span data-ar="لا" data-en="No">لا</span></label>
+          <label><input type="radio" name="transferSponsor" value="غير مطلوب"> <span data-ar="غير مطلوب" data-en="Not needed">غير مطلوب</span></label>
         </div>
       </div>
       <div class="field">
-        <label>كم مرة نقلت الكفالة؟</label>
+        <label data-ar="كم مرة نقلت الكفالة؟" data-en="How many times have you transferred sponsorship?">كم مرة نقلت الكفالة؟</label>
         <input type="number" name="transferCount" min="0" max="20" placeholder="0">
       </div>
     </div>
 
     <div class="field full">
-      <label>اختر النظام الذي يناسبك <span class="req">*</span></label>
+      <label><span data-ar="اختر النظام الذي يناسبك" data-en="Choose the work system that suits you">اختر النظام الذي يناسبك</span> <span class="req">*</span></label>
       <div class="checkbox-group">
-        <label><input type="checkbox" name="workType" value="توصيل طرود"> توصيل طرود</label>
-        <label><input type="checkbox" name="workType" value="توصيل مطاعم بالطلب"> توصيل مطاعم بالطلب</label>
-        <label><input type="checkbox" name="workType" value="توصيل مطاعم وبقالة"> توصيل مطاعم وبقالة</label>
+        <label><input type="checkbox" name="workType" value="توصيل طرود"> <span data-ar="توصيل طرود" data-en="Parcel Delivery">توصيل طرود</span></label>
+        <label><input type="checkbox" name="workType" value="توصيل مطاعم بالطلب"> <span data-ar="توصيل مطاعم بالطلب" data-en="On-demand Restaurant Delivery">توصيل مطاعم بالطلب</span></label>
+        <label><input type="checkbox" name="workType" value="توصيل مطاعم وبقالة"> <span data-ar="توصيل مطاعم وبقالة" data-en="Restaurant & Grocery Delivery">توصيل مطاعم وبقالة</span></label>
       </div>
     </div>
 
-    <div class="section-title">المرفقات</div>
+    <div class="section-title" data-ar="المرفقات" data-en="Attachments">المرفقات</div>
     <div class="row">
       <div class="field">
-        <label>صورة الإقامة / الهوية من أبشر <span class="req">*</span></label>
+        <label><span data-ar="صورة الإقامة / الهوية من أبشر" data-en="ID / Iqama image from Absher">صورة الإقامة / الهوية من أبشر</span> <span class="req">*</span></label>
         <input type="file" name="idImage" accept="image/*,application/pdf" required>
-        <small class="hint">صورة واضحة من تطبيق أبشر</small>
+        <small class="hint" data-ar="صورة واضحة من تطبيق أبشر" data-en="Clear image from Absher app">صورة واضحة من تطبيق أبشر</small>
       </div>
       <div class="field">
-        <label>صورة الرخصة من أبشر</label>
+        <label data-ar="صورة الرخصة من أبشر" data-en="License image from Absher">صورة الرخصة من أبشر</label>
         <input type="file" name="licenseImage" accept="image/*,application/pdf">
-        <small class="hint">صورة الرخصة من تطبيق أبشر</small>
+        <small class="hint" data-ar="صورة الرخصة من تطبيق أبشر" data-en="License image from Absher app">صورة الرخصة من تطبيق أبشر</small>
       </div>
     </div>
 
-    <div class="section-title">ملاحظات إضافية</div>
+    <div class="section-title" data-ar="ملاحظات إضافية" data-en="Additional Notes">ملاحظات إضافية</div>
     <div class="field full">
-      <label>ملاحظات</label>
-      <textarea name="notes" placeholder="أي ملاحظات إضافية ترغب بإضافتها..."></textarea>
+      <label data-ar="ملاحظات" data-en="Notes">ملاحظات</label>
+      <textarea name="notes" data-ar-ph="أي ملاحظات إضافية ترغب بإضافتها..." data-en-ph="Any additional notes you'd like to add..." placeholder="أي ملاحظات إضافية ترغب بإضافتها..."></textarea>
     </div>
 
-    <button type="submit" class="submit-btn" id="submitBtn">إرسال الطلب</button>
-    <div class="alert success" id="successAlert">✅ تم إرسال الطلب بنجاح! سيتم التواصل معك قريباً.</div>
-    <div class="alert error" id="errorAlert">❌ حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.</div>
+    <button type="submit" class="submit-btn" id="submitBtn" data-ar="إرسال الطلب" data-en="Submit Application">إرسال الطلب</button>
+    <div class="alert error" id="errorAlert"></div>
   </form>
 </div>
 
 <script>
-  const WEBHOOK_URL = 'https://n8n.rawaialzar.online/webhook-test/2087b5a6-66c3-44e5-8972-d06730a2e935';
+  const WEBHOOK_URL = 'https://n8n.rawaialzar.online/webhook/2087b5a6-66c3-44e5-8972-d06730a2e935';
 
+  // ===== Language Switcher =====
+  const langSwitch = document.getElementById('langSwitch');
+  let currentLang = localStorage.getItem('formLang') || 'ar';
+
+  function applyLang(lang) {
+    const html = document.documentElement;
+    html.lang = lang;
+    html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    langSwitch.textContent = lang === 'ar' ? 'English' : 'العربية';
+
+    document.querySelectorAll('[data-ar]').forEach(el => {
+      el.textContent = el.getAttribute('data-' + lang);
+    });
+    document.querySelectorAll('[data-ar-ph]').forEach(el => {
+      el.placeholder = el.getAttribute('data-' + lang + '-ph');
+    });
+    localStorage.setItem('formLang', lang);
+  }
+
+  applyLang(currentLang);
+  langSwitch.addEventListener('click', () => {
+    currentLang = currentLang === 'ar' ? 'en' : 'ar';
+    applyLang(currentLang);
+  });
+
+  // ===== Form Submission =====
   const form = document.getElementById('driverForm');
   const submitBtn = document.getElementById('submitBtn');
-  const successAlert = document.getElementById('successAlert');
   const errorAlert = document.getElementById('errorAlert');
+
+  const messages = {
+    ar: {
+      selectWork: '⚠️ يرجى اختيار نظام العمل المناسب',
+      sending: 'جاري الإرسال...',
+      submit: 'إرسال الطلب',
+      fail: '❌ فشل الإرسال: '
+    },
+    en: {
+      selectWork: '⚠️ Please select a work system',
+      sending: 'Sending...',
+      submit: 'Submit Application',
+      fail: '❌ Submission failed: '
+    }
+  };
 
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
-
-    // إخفاء التنبيهات السابقة
-    successAlert.style.display = 'none';
     errorAlert.style.display = 'none';
 
-    // التحقق من اختيار نظام العمل
     const workTypes = form.querySelectorAll('input[name="workType"]:checked');
     if (workTypes.length === 0) {
-      errorAlert.textContent = '⚠️ يرجى اختيار نظام العمل المناسب';
+      errorAlert.textContent = messages[currentLang].selectWork;
       errorAlert.style.display = 'block';
       return;
     }
 
-    // تفعيل حالة التحميل
     submitBtn.disabled = true;
-    submitBtn.innerHTML = 'جاري الإرسال... <span class="spinner"></span>';
+    submitBtn.innerHTML = messages[currentLang].sending + ' <span class="spinner"></span>';
 
     try {
       const formData = new FormData(form);
-
-      // دمج خيارات نظام العمل في قيمة واحدة (مفصولة بفاصلة)
       const workTypeValues = Array.from(workTypes).map(c => c.value);
       formData.delete('workType');
       formData.append('workType', workTypeValues.join(', '));
-
-      // إضافة طابع زمني
       formData.append('submittedAt', new Date().toISOString());
+      formData.append('language', currentLang);
 
       const response = await fetch(WEBHOOK_URL, {
         method: 'POST',
         body: formData
       });
 
-      if (!response.ok) {
-        throw new Error('HTTP ' + response.status);
-      }
+      if (!response.ok) throw new Error('HTTP ' + response.status);
 
-      successAlert.style.display = 'block';
-      form.reset();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.location.href = 'thanks.html?lang=' + currentLang;
     } catch (err) {
-      console.error('خطأ في الإرسال:', err);
-      errorAlert.textContent = '❌ فشل الإرسال: ' + err.message + ' — تأكد من الاتصال بالإنترنت أو من تفعيل الـ Webhook في n8n.';
+      console.error('Error:', err);
+      errorAlert.textContent = messages[currentLang].fail + err.message;
       errorAlert.style.display = 'block';
-    } finally {
       submitBtn.disabled = false;
-      submitBtn.innerHTML = 'إرسال الطلب';
+      submitBtn.innerHTML = messages[currentLang].submit;
     }
   });
 
-  // تنظيف رقم الجوال (أرقام فقط)
   document.querySelector('[name="mobile"]').addEventListener('input', function() {
     this.value = this.value.replace(/[^0-9]/g, '');
   });
-
-  // تنظيف رقم الهوية (أرقام فقط)
   document.querySelector('[name="idNumber"]').addEventListener('input', function() {
     this.value = this.value.replace(/[^0-9]/g, '');
   });

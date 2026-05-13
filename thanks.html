@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>شكراً لك | Thank You</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tahoma', 'Arial', sans-serif; }
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .card {
+    max-width: 550px;
+    width: 100%;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    padding: 50px 35px;
+    text-align: center;
+    position: relative;
+    animation: fadeIn 0.6s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .lang-switch {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: #f4f6f8;
+    color: #2c3e50;
+    border: 1px solid #d0d7de;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+  }
+  html[dir="ltr"] .lang-switch { left: auto; right: 15px; }
+  .check-icon {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+    margin: 0 auto 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pop 0.5s ease 0.2s both;
+    box-shadow: 0 8px 20px rgba(17,153,142,0.3);
+  }
+  @keyframes pop {
+    0% { transform: scale(0); }
+    70% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+  .check-icon svg { width: 50px; height: 50px; }
+  h1 {
+    color: #2c3e50;
+    font-size: 28px;
+    margin-bottom: 15px;
+  }
+  p.lead {
+    color: #5d6d7e;
+    font-size: 16px;
+    line-height: 1.7;
+    margin-bottom: 25px;
+  }
+  .info-box {
+    background: #f4f9fb;
+    border-right: 4px solid #4ca1af;
+    padding: 15px 18px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    text-align: right;
+    font-size: 14px;
+    color: #2c3e50;
+    line-height: 1.6;
+  }
+  html[dir="ltr"] .info-box {
+    border-right: none;
+    border-left: 4px solid #4ca1af;
+    text-align: left;
+  }
+  .back-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #2c3e50, #4ca1af);
+    color: #fff;
+    padding: 12px 35px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 15px;
+    transition: 0.2s;
+  }
+  .back-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+</style>
+</head>
+<body>
+<div class="card">
+  <button type="button" class="lang-switch" id="langSwitch">English</button>
+
+  <div class="check-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+  </div>
+
+  <h1 data-ar="شكراً لتسجيلك!" data-en="Thank You for Registering!">شكراً لتسجيلك!</h1>
+  <p class="lead" data-ar="تم استلام طلبك بنجاح وسيتم مراجعته من قبل فريقنا." data-en="Your application has been received and will be reviewed by our team.">
+    تم استلام طلبك بنجاح وسيتم مراجعته من قبل فريقنا.
+  </p>
+
+  <div class="info-box" data-ar="📞 سيتم التواصل معك قريباً عبر رقم الجوال أو البريد الإلكتروني المسجل خلال 24-48 ساعة عمل." data-en="📞 We will contact you soon via the registered mobile number or email within 24-48 business hours.">
+    📞 سيتم التواصل معك قريباً عبر رقم الجوال أو البريد الإلكتروني المسجل خلال 24-48 ساعة عمل.
+  </div>
+
+  <a href="index.html" class="back-btn" data-ar="العودة للصفحة الرئيسية" data-en="Back to Home">العودة للصفحة الرئيسية</a>
+</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  let currentLang = urlParams.get('lang') || localStorage.getItem('formLang') || 'ar';
+
+  const langSwitch = document.getElementById('langSwitch');
+
+  function applyLang(lang) {
+    const html = document.documentElement;
+    html.lang = lang;
+    html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    langSwitch.textContent = lang === 'ar' ? 'English' : 'العربية';
+
+    document.querySelectorAll('[data-ar]').forEach(el => {
+      el.textContent = el.getAttribute('data-' + lang);
+    });
+    document.title = lang === 'ar' ? 'شكراً لك' : 'Thank You';
+    localStorage.setItem('formLang', lang);
+  }
+
+  applyLang(currentLang);
+  langSwitch.addEventListener('click', () => {
+    currentLang = currentLang === 'ar' ? 'en' : 'ar';
+    applyLang(currentLang);
+  });
+</script>
+</body>
+</html>
