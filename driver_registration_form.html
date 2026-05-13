@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نموذج تسجيل المندوبين</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tahoma', 'Arial', sans-serif; }
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+  .header {
+    background: linear-gradient(135deg, #2c3e50, #4ca1af);
+    color: #fff;
+    padding: 30px;
+    text-align: center;
+  }
+  .header h1 { font-size: 26px; margin-bottom: 8px; }
+  .header p { font-size: 14px; opacity: 0.9; }
+  form { padding: 30px; }
+  .section-title {
+    background: #f4f6f8;
+    border-right: 4px solid #4ca1af;
+    padding: 10px 15px;
+    margin: 20px 0 15px;
+    font-weight: bold;
+    color: #2c3e50;
+    border-radius: 5px;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+  }
+  .field { display: flex; flex-direction: column; margin-bottom: 15px; }
+  .field.full { grid-column: 1 / -1; }
+  label {
+    font-size: 14px;
+    color: #34495e;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  label .req { color: #e74c3c; }
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="number"],
+  input[type="file"],
+  select,
+  textarea {
+    padding: 10px 12px;
+    border: 1px solid #d0d7de;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fafbfc;
+    transition: 0.2s;
+    font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: #4ca1af;
+    background: #fff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(76,161,175,0.15);
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  .radio-group, .checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 5px;
+  }
+  .radio-group label, .checkbox-group label {
+    background: #f4f6f8;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: normal;
+    border: 1px solid transparent;
+    transition: 0.2s;
+  }
+  .radio-group input, .checkbox-group input {
+    margin-left: 6px;
+    cursor: pointer;
+  }
+  .radio-group label:hover, .checkbox-group label:hover {
+    background: #e8f4f7;
+    border-color: #4ca1af;
+  }
+  .submit-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #2c3e50, #4ca1af);
+    color: #fff;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: 0.2s;
+  }
+  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+  .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  small.hint { color: #7f8c8d; font-size: 12px; margin-top: 4px; }
+  .alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-weight: 600;
+    text-align: center;
+    display: none;
+  }
+  .alert.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+  .alert.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 600px) {
+    .row { grid-template-columns: 1fr; }
+    form { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>نموذج تسجيل المندوبين</h1>
+    <p>يرجى تعبئة جميع الحقول المطلوبة بدقة</p>
+  </div>
+
+  <form id="driverForm" enctype="multipart/form-data">
+
+    <div class="section-title">المعلومات الشخصية</div>
+    <div class="row">
+      <div class="field">
+        <label>الاسم الكامل <span class="req">*</span></label>
+        <input type="text" name="fullName" required placeholder="الاسم رباعي">
+      </div>
+      <div class="field">
+        <label>الجنسية <span class="req">*</span></label>
+        <select name="nationality" required>
+          <option value="">-- اختر الجنسية --</option>
+          <option>سعودي</option>
+          <option>مصري</option>
+          <option>يمني</option>
+          <option>سوري</option>
+          <option>سوداني</option>
+          <option>باكستاني</option>
+          <option>هندي</option>
+          <option>بنغلاديشي</option>
+          <option>فلبيني</option>
+          <option>إثيوبي</option>
+          <option>أخرى</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>رقم الإقامة / الهوية الوطنية <span class="req">*</span></label>
+        <input type="text" name="idNumber" maxlength="10" pattern="[0-9]{10}" required placeholder="10 أرقام">
+      </div>
+      <div class="field">
+        <label>تاريخ انتهاء الإقامة / الهوية <span class="req">*</span></label>
+        <input type="date" name="idExpiry" required>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>تاريخ الميلاد <span class="req">*</span></label>
+        <input type="date" name="birthDate" required>
+      </div>
+      <div class="field">
+        <label>المهنة <span class="req">*</span></label>
+        <input type="text" name="job" required placeholder="حسب الإقامة">
+      </div>
+    </div>
+
+    <div class="section-title">معلومات التواصل</div>
+    <div class="row">
+      <div class="field">
+        <label>رقم الجوال <span class="req">*</span></label>
+        <input type="tel" name="mobile" pattern="05[0-9]{8}" maxlength="10" required placeholder="05xxxxxxxx">
+      </div>
+      <div class="field">
+        <label>البريد الإلكتروني <span class="req">*</span></label>
+        <input type="email" name="email" required placeholder="example@email.com">
+      </div>
+    </div>
+
+    <div class="section-title">معلومات الرخصة والمركبة</div>
+    <div class="field">
+      <label>هل لديك رخصة قيادة؟ <span class="req">*</span></label>
+      <div class="radio-group">
+        <label><input type="radio" name="hasLicense" value="نعم" required> نعم</label>
+        <label><input type="radio" name="hasLicense" value="لا"> لا</label>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>نوع الرخصة</label>
+        <select name="licenseType">
+          <option value="">-- اختر نوع الرخصة --</option>
+          <option>خصوصي</option>
+          <option>دراجة نارية</option>
+          <option>نقل خفيف</option>
+          <option>نقل ثقيل</option>
+          <option>عمومي (أجرة)</option>
+          <option>إنشائية</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>تاريخ انتهاء الرخصة</label>
+        <input type="date" name="licenseExpiry">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>هل لديك مركبة خاصة؟ <span class="req">*</span></label>
+      <div class="radio-group">
+        <label><input type="radio" name="hasVehicle" value="نعم" required> نعم</label>
+        <label><input type="radio" name="hasVehicle" value="لا"> لا</label>
+      </div>
+    </div>
+
+    <div class="section-title">معلومات العمل</div>
+    <div class="row">
+      <div class="field">
+        <label>المدينة التي ترغب بالعمل فيها <span class="req">*</span></label>
+        <select name="city" required>
+          <option value="">-- اختر المدينة --</option>
+          <option>الرياض</option>
+          <option>جدة</option>
+          <option>مكة المكرمة</option>
+          <option>المدينة المنورة</option>
+          <option>الدمام</option>
+          <option>الخبر</option>
+          <option>الظهران</option>
+          <option>الطائف</option>
+          <option>تبوك</option>
+          <option>أبها</option>
+          <option>خميس مشيط</option>
+          <option>بريدة</option>
+          <option>حائل</option>
+          <option>جازان</option>
+          <option>نجران</option>
+          <option>ينبع</option>
+          <option>أخرى</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>هل يمكنك الانتقال لأي مدينة للعمل؟ <span class="req">*</span></label>
+        <div class="radio-group">
+          <label><input type="radio" name="canRelocate" value="نعم" required> نعم</label>
+          <label><input type="radio" name="canRelocate" value="لا"> لا</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>هل سبق لك العمل في شركة لوجستيات؟ <span class="req">*</span></label>
+      <div class="radio-group">
+        <label><input type="radio" name="logisticsExp" value="نعم" required> نعم</label>
+        <label><input type="radio" name="logisticsExp" value="لا"> لا</label>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>هل ترغب بنقل الكفالة؟ <span class="req">*</span></label>
+        <div class="radio-group">
+          <label><input type="radio" name="transferSponsor" value="نعم" required> نعم</label>
+          <label><input type="radio" name="transferSponsor" value="لا"> لا</label>
+          <label><input type="radio" name="transferSponsor" value="غير مطلوب"> غير مطلوب</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>كم مرة نقلت الكفالة؟</label>
+        <input type="number" name="transferCount" min="0" max="20" placeholder="0">
+      </div>
+    </div>
+
+    <div class="field full">
+      <label>اختر النظام الذي يناسبك <span class="req">*</span></label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="workType" value="توصيل طرود"> توصيل طرود</label>
+        <label><input type="checkbox" name="workType" value="توصيل مطاعم بالطلب"> توصيل مطاعم بالطلب</label>
+        <label><input type="checkbox" name="workType" value="توصيل مطاعم وبقالة"> توصيل مطاعم وبقالة</label>
+      </div>
+    </div>
+
+    <div class="section-title">المرفقات</div>
+    <div class="row">
+      <div class="field">
+        <label>صورة الإقامة / الهوية من أبشر <span class="req">*</span></label>
+        <input type="file" name="idImage" accept="image/*,application/pdf" required>
+        <small class="hint">صورة واضحة من تطبيق أبشر</small>
+      </div>
+      <div class="field">
+        <label>صورة الرخصة من أبشر</label>
+        <input type="file" name="licenseImage" accept="image/*,application/pdf">
+        <small class="hint">صورة الرخصة من تطبيق أبشر</small>
+      </div>
+    </div>
+
+    <div class="section-title">ملاحظات إضافية</div>
+    <div class="field full">
+      <label>ملاحظات</label>
+      <textarea name="notes" placeholder="أي ملاحظات إضافية ترغب بإضافتها..."></textarea>
+    </div>
+
+    <button type="submit" class="submit-btn" id="submitBtn">إرسال الطلب</button>
+    <div class="alert success" id="successAlert">✅ تم إرسال الطلب بنجاح! سيتم التواصل معك قريباً.</div>
+    <div class="alert error" id="errorAlert">❌ حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.</div>
+  </form>
+</div>
+
+<script>
+  const WEBHOOK_URL = 'https://n8n.rawaialzar.online/webhook-test/2087b5a6-66c3-44e5-8972-d06730a2e935';
+
+  const form = document.getElementById('driverForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const successAlert = document.getElementById('successAlert');
+  const errorAlert = document.getElementById('errorAlert');
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    // إخفاء التنبيهات السابقة
+    successAlert.style.display = 'none';
+    errorAlert.style.display = 'none';
+
+    // التحقق من اختيار نظام العمل
+    const workTypes = form.querySelectorAll('input[name="workType"]:checked');
+    if (workTypes.length === 0) {
+      errorAlert.textContent = '⚠️ يرجى اختيار نظام العمل المناسب';
+      errorAlert.style.display = 'block';
+      return;
+    }
+
+    // تفعيل حالة التحميل
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'جاري الإرسال... <span class="spinner"></span>';
+
+    try {
+      const formData = new FormData(form);
+
+      // دمج خيارات نظام العمل في قيمة واحدة (مفصولة بفاصلة)
+      const workTypeValues = Array.from(workTypes).map(c => c.value);
+      formData.delete('workType');
+      formData.append('workType', workTypeValues.join(', '));
+
+      // إضافة طابع زمني
+      formData.append('submittedAt', new Date().toISOString());
+
+      const response = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('HTTP ' + response.status);
+      }
+
+      successAlert.style.display = 'block';
+      form.reset();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      console.error('خطأ في الإرسال:', err);
+      errorAlert.textContent = '❌ فشل الإرسال: ' + err.message + ' — تأكد من الاتصال بالإنترنت أو من تفعيل الـ Webhook في n8n.';
+      errorAlert.style.display = 'block';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'إرسال الطلب';
+    }
+  });
+
+  // تنظيف رقم الجوال (أرقام فقط)
+  document.querySelector('[name="mobile"]').addEventListener('input', function() {
+    this.value = this.value.replace(/[^0-9]/g, '');
+  });
+
+  // تنظيف رقم الهوية (أرقام فقط)
+  document.querySelector('[name="idNumber"]').addEventListener('input', function() {
+    this.value = this.value.replace(/[^0-9]/g, '');
+  });
+</script>
+</body>
+</html>
