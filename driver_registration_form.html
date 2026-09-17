@@ -339,13 +339,10 @@
 </div>
 
 <script>
-  const WEBHOOK_URL = 'https://n8n.rawaialzar.online/webhook-test/2087b5a6-66c3-44e5-8972-d06730a2e935';
-
   const form = document.getElementById('driverForm');
   const submitBtn = document.getElementById('submitBtn');
   const successAlert = document.getElementById('successAlert');
   const errorAlert = document.getElementById('errorAlert');
-
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -373,24 +370,18 @@
       formData.delete('workType');
       formData.append('workType', workTypeValues.join(', '));
 
-      // إضافة طابع زمني
-      formData.append('submittedAt', new Date().toISOString());
-
-      const response = await fetch(WEBHOOK_URL, {
+      const response = await fetch('/api/applications', {
         method: 'POST',
         body: formData
       });
-
-      if (!response.ok) {
-        throw new Error('HTTP ' + response.status);
-      }
-
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'HTTP ' + response.status);
       successAlert.style.display = 'block';
       form.reset();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       console.error('خطأ في الإرسال:', err);
-      errorAlert.textContent = '❌ فشل الإرسال: ' + err.message + ' — تأكد من الاتصال بالإنترنت أو من تفعيل الـ Webhook في n8n.';
+      errorAlert.textContent = '❌ فشل الإرسال: ' + err.message;
       errorAlert.style.display = 'block';
     } finally {
       submitBtn.disabled = false;

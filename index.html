@@ -150,6 +150,8 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
   @media (max-width: 600px) {
+    .header { padding-top: 58px; }
+    .lang-switch { top: 12px; }
     .row { grid-template-columns: 1fr; }
     form { padding: 20px; }
   }
@@ -352,8 +354,6 @@
 </div>
 
 <script>
-  const WEBHOOK_URL = 'https://n8n.rawaialzar.online/webhook/2087b5a6-66c3-44e5-8972-d06730a2e935';
-
   // ===== Language Switcher =====
   const langSwitch = document.getElementById('langSwitch');
   let currentLang = localStorage.getItem('formLang') || 'ar';
@@ -418,16 +418,14 @@
       const workTypeValues = Array.from(workTypes).map(c => c.value);
       formData.delete('workType');
       formData.append('workType', workTypeValues.join(', '));
-      formData.append('submittedAt', new Date().toISOString());
       formData.append('language', currentLang);
 
-      const response = await fetch(WEBHOOK_URL, {
+      const response = await fetch('/api/applications', {
         method: 'POST',
         body: formData
       });
-
-      if (!response.ok) throw new Error('HTTP ' + response.status);
-
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'HTTP ' + response.status);
       window.location.href = 'thanks.html?lang=' + currentLang;
     } catch (err) {
       console.error('Error:', err);

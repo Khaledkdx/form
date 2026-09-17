@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة تحكم طلبات المندوبين</title>
+<style>
+  :root {
+    --bg: #eef3f7;
+    --panel: #ffffff;
+    --ink: #1f2d3a;
+    --muted: #687888;
+    --line: #d7e0e8;
+    --brand: #276d78;
+    --brand-dark: #1e3945;
+    --soft: #e9f5f7;
+    --danger: #c0392b;
+    --shadow: 0 16px 36px rgba(31,45,58,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tahoma', 'Arial', sans-serif; }
+  body {
+    min-height: 100vh;
+    background:
+      linear-gradient(135deg, rgba(39,109,120,0.13), rgba(30,57,69,0.06)),
+      var(--bg);
+    color: var(--ink);
+    padding: 22px;
+  }
+  .shell { max-width: 1180px; margin: 0 auto; }
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  h1 { font-size: 28px; color: var(--brand-dark); margin-bottom: 6px; }
+  .subtitle { color: var(--muted); font-size: 14px; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+    color: var(--brand-dark);
+    padding: 10px 14px;
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    transition: 0.2s;
+  }
+  .btn.primary { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .btn.danger { color: var(--danger); }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(31,45,58,0.12); }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .stat {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 8px 20px rgba(31,45,58,0.07);
+  }
+  .stat span { color: var(--muted); font-size: 12px; }
+  .stat strong { display: block; font-size: 28px; margin-top: 8px; color: var(--brand-dark); }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .toolbar {
+    display: grid;
+    grid-template-columns: 1fr 180px;
+    gap: 10px;
+    padding: 14px;
+    border-bottom: 1px solid var(--line);
+    background: #fbfdfe;
+  }
+  input, select {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--ink);
+    padding: 11px 12px;
+    font-size: 14px;
+    outline: none;
+  }
+  input:focus, select:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(39,109,120,0.13); }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 900px; }
+  th, td {
+    text-align: right;
+    padding: 13px 14px;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+    vertical-align: top;
+  }
+  th { background: var(--soft); color: var(--brand-dark); font-size: 12px; }
+  tr:hover td { background: #fbfdfe; }
+  .name { font-weight: 800; color: var(--brand-dark); }
+  .muted { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  .status {
+    display: inline-block;
+    background: #ecf7ec;
+    color: #207141;
+    border: 1px solid #cce9d4;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .empty {
+    padding: 42px 18px;
+    text-align: center;
+    color: var(--muted);
+    display: none;
+  }
+  dialog {
+    width: min(720px, calc(100vw - 28px));
+    border: 0;
+    border-radius: 10px;
+    box-shadow: 0 24px 60px rgba(31,45,58,0.22);
+    margin: auto;
+    padding: 0;
+  }
+  dialog::backdrop { background: rgba(18,31,42,0.45); }
+  .modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 18px;
+    border-bottom: 1px solid var(--line);
+    background: var(--soft);
+  }
+  .modal-body {
+    padding: 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    max-height: 70vh;
+    overflow: auto;
+  }
+  .detail {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    background: #fff;
+  }
+  .detail.full { grid-column: 1 / -1; }
+  .detail span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+  .detail strong { color: var(--ink); font-size: 14px; word-break: break-word; }
+  .login {
+    width: min(380px, 100%);
+    margin: min(16vh, 120px) auto 0;
+    padding: 30px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+  }
+  .login h1 { font-size: 23px; margin-bottom: 10px; }
+  .login p { color: var(--muted); font-size: 14px; margin-bottom: 22px; }
+  .login label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .login .btn { width: 100%; margin-top: 12px; }
+  .login-error { color: var(--danger); font-size: 13px; margin-top: 12px; }
+  .page-error { color: var(--danger); margin-bottom: 14px; font-size: 13px; }
+  .attachment-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .attachment { min-width: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .attachment img { display: block; width: 100%; max-height: 260px; object-fit: contain; background: #f5f8fa; }
+  .attachment-info { padding: 12px; }
+  .attachment-info strong { display: block; margin: 0 0 8px; }
+  .attachment-info a { color: var(--brand); font-weight: 700; }
+  @media (max-width: 760px) {
+    body { padding: 14px; }
+    .topbar { align-items: stretch; flex-direction: column; }
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .toolbar { grid-template-columns: 1fr; }
+    .modal-body { grid-template-columns: 1fr; }
+    .detail.full { grid-column: auto; }
+    .attachment-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<form class="login" id="loginForm" autocomplete="off">
+  <h1>لوحة تحكم الطلبات</h1>
+  <p>أدخل كلمة المرور لعرض الطلبات.</p>
+  <label for="dashboardPassword">كلمة المرور</label>
+  <input id="dashboardPassword" type="password" required autocomplete="current-password">
+  <button class="btn primary" type="submit">دخول</button>
+  <p class="login-error" id="loginError" role="alert" hidden>كلمة المرور غير صحيحة.</p>
+</form>
+<main class="shell" id="dashboardContent" hidden>
+  <header class="topbar">
+    <div>
+      <h1>لوحة تحكم طلبات المندوبين</h1>
+      <p class="subtitle">كل الطلبات المسجلة من العملاء تظهر هنا.</p>
+    </div>
+    <div class="actions">
+      <a class="btn primary" href="index.html">فتح نموذج التسجيل</a>
+      <button class="btn" type="button" id="exportBtn">تصدير CSV</button>
+      <button class="btn danger" type="button" id="clearBtn">مسح الكل</button>
+      <button class="btn" type="button" id="logoutBtn">خروج</button>
+    </div>
+  </header>
+  <p class="page-error" id="dashboardError" role="alert" hidden></p>
+
+  <section class="stats" aria-label="إحصائيات الطلبات">
+    <div class="stat"><span>إجمالي الطلبات</span><strong id="totalCount">0</strong></div>
+    <div class="stat"><span>طلبات اليوم</span><strong id="todayCount">0</strong></div>
+    <div class="stat"><span>يمتلك رخصة</span><strong id="licenseCount">0</strong></div>
+    <div class="stat"><span>يمتلك مركبة</span><strong id="vehicleCount">0</strong></div>
+  </section>
+
+  <section class="panel">
+    <div class="toolbar">
+      <input type="search" id="searchInput" placeholder="ابحث بالاسم، الجوال، البريد، المدينة أو رقم الهوية">
+      <select id="cityFilter" aria-label="تصفية حسب المدينة">
+        <option value="">كل المدن</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>العميل</th>
+            <th>التواصل</th>
+            <th>المدينة</th>
+            <th>نظام العمل</th>
+            <th>الرخصة / المركبة</th>
+            <th>تاريخ التسجيل</th>
+            <th>الحالة</th>
+            <th>إجراء</th>
+          </tr>
+        </thead>
+        <tbody id="applicationsBody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="emptyState">لا توجد طلبات حتى الآن. جرّب إرسال طلب من نموذج التسجيل.</div>
+  </section>
+</main>
+
+<dialog id="detailsDialog">
+  <div class="modal-head">
+    <h2 id="detailsTitle">تفاصيل الطلب</h2>
+    <button class="btn" type="button" id="closeDialog">إغلاق</button>
+  </div>
+  <div class="modal-body" id="detailsBody"></div>
+</dialog>
+
+<script>
+  const loginForm = document.getElementById('loginForm');
+  const dashboardContent = document.getElementById('dashboardContent');
+  const body = document.getElementById('applicationsBody');
+  const emptyState = document.getElementById('emptyState');
+  const searchInput = document.getElementById('searchInput');
+  const cityFilter = document.getElementById('cityFilter');
+  const detailsDialog = document.getElementById('detailsDialog');
+  const detailsTitle = document.getElementById('detailsTitle');
+  const detailsBody = document.getElementById('detailsBody');
+  const dashboardError = document.getElementById('dashboardError');
+  let applications = [];
+
+  async function refreshApplications() {
+    const response = await fetch('/api/applications');
+    if (response.status === 401) {
+      lockDashboard();
+      return;
+    }
+    if (!response.ok) throw new Error('تعذر تحميل الطلبات.');
+    applications = await response.json();
+    dashboardError.hidden = true;
+    render();
+  }
+
+  async function unlockDashboard() {
+    loginForm.hidden = true;
+    dashboardContent.hidden = false;
+    try {
+      await refreshApplications();
+    } catch (error) {
+      dashboardError.textContent = error.message;
+      dashboardError.hidden = false;
+    }
+  }
+
+  function lockDashboard() {
+    applications = [];
+    dashboardContent.hidden = true;
+    loginForm.hidden = false;
+    if (detailsDialog.open) detailsDialog.close();
+  }
+
+  loginForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    const password = document.getElementById('dashboardPassword');
+    const errorElement = document.getElementById('loginError');
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: password.value })
+      });
+      const result = await response.json();
+      errorElement.hidden = response.ok;
+      if (!response.ok) {
+        errorElement.textContent = result.error || 'تعذر تسجيل الدخول.';
+      } else {
+        await unlockDashboard();
+      }
+    } catch (error) {
+      errorElement.textContent = 'تعذر الاتصال بالخادم.';
+      errorElement.hidden = false;
+    }
+    password.value = '';
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await fetch('/api/logout', { method: 'POST' });
+    lockDashboard();
+    document.getElementById('dashboardPassword').focus();
+  });
+
+  const labels = {
+    fullName: 'الاسم الكامل',
+    nationality: 'الجنسية',
+    idNumber: 'رقم الهوية / الإقامة',
+    idExpiry: 'انتهاء الهوية / الإقامة',
+    birthDate: 'تاريخ الميلاد',
+    job: 'المهنة',
+    mobile: 'رقم الجوال',
+    email: 'البريد الإلكتروني',
+    hasLicense: 'هل لديه رخصة؟',
+    licenseType: 'نوع الرخصة',
+    licenseExpiry: 'انتهاء الرخصة',
+    hasVehicle: 'هل لديه مركبة؟',
+    city: 'مدينة العمل',
+    canRelocate: 'يمكنه الانتقال؟',
+    logisticsExp: 'خبرة لوجستيات',
+    transferSponsor: 'نقل الكفالة',
+    transferCount: 'عدد مرات نقل الكفالة',
+    workType: 'نظام العمل',
+    idImageName: 'ملف الهوية / الإقامة',
+    licenseImageName: 'ملف الرخصة',
+    notes: 'ملاحظات'
+  };
+
+  function formatDate(value) {
+    if (!value) return '-';
+    return new Intl.DateTimeFormat('ar-SA', {
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    }).format(new Date(value));
+  }
+
+  function isToday(value) {
+    if (!value) return false;
+    const date = new Date(value);
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  }
+
+  function escapeHtml(value) {
+    return String(value || '-')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function updateStats(applications) {
+    document.getElementById('totalCount').textContent = applications.length;
+    document.getElementById('todayCount').textContent = applications.filter(app => isToday(app.submittedAt)).length;
+    document.getElementById('licenseCount').textContent = applications.filter(app => app.hasLicense === 'نعم').length;
+    document.getElementById('vehicleCount').textContent = applications.filter(app => app.hasVehicle === 'نعم').length;
+  }
+
+  function updateCityFilter(applications) {
+    const selected = cityFilter.value;
+    const cities = [...new Set(applications.map(app => app.city).filter(Boolean))].sort();
+    cityFilter.innerHTML = '<option value="">كل المدن</option>' + cities.map(city => (
+      `<option value="${escapeHtml(city)}">${escapeHtml(city)}</option>`
+    )).join('');
+    cityFilter.value = cities.includes(selected) ? selected : '';
+  }
+
+  function getFilteredApplications(applications) {
+    const query = searchInput.value.trim().toLowerCase();
+    const city = cityFilter.value;
+
+    return applications.filter(app => {
+      const searchable = [
+        app.fullName,
+        app.mobile,
+        app.email,
+        app.city,
+        app.idNumber,
+        app.workType
+      ].join(' ').toLowerCase();
+
+      return (!query || searchable.includes(query)) && (!city || app.city === city);
+    });
+  }
+
+  function render() {
+    updateStats(applications);
+    updateCityFilter(applications);
+
+    const filtered = getFilteredApplications(applications);
+    body.innerHTML = filtered.map(app => `
+      <tr>
+        <td>
+          <div class="name">${escapeHtml(app.fullName)}</div>
+          <div class="muted">${escapeHtml(app.nationality)} · ${escapeHtml(app.idNumber)}</div>
+        </td>
+        <td>
+          <div>${escapeHtml(app.mobile)}</div>
+          <div class="muted">${escapeHtml(app.email)}</div>
+        </td>
+        <td>${escapeHtml(app.city)}</td>
+        <td>${escapeHtml(app.workType)}</td>
+        <td>${escapeHtml(app.hasLicense)} / ${escapeHtml(app.hasVehicle)}</td>
+        <td>${formatDate(app.submittedAt)}</td>
+        <td><span class="status">${escapeHtml(app.status || 'جديد')}</span></td>
+        <td><button class="btn" type="button" data-id="${escapeHtml(app.id)}">عرض</button></td>
+      </tr>
+    `).join('');
+
+    emptyState.style.display = filtered.length ? 'none' : 'block';
+  }
+
+  function showDetails(id) {
+    const app = applications.find(item => item.id === id);
+    if (!app) return;
+
+    detailsTitle.textContent = app.fullName || 'تفاصيل الطلب';
+    detailsBody.innerHTML = Object.entries(labels).map(([key, label]) => `
+      <div class="detail ${key === 'notes' ? 'full' : ''}">
+        <span>${label}</span>
+        <strong>${escapeHtml(app[key])}</strong>
+      </div>
+    `).join('') + `
+      <div class="detail full">
+        <span>المرفقات</span>
+        <div class="attachment-grid" id="attachmentsList"></div>
+      </div>
+      <div class="detail full">
+        <span>تاريخ التسجيل</span>
+        <strong>${formatDate(app.submittedAt)}</strong>
+      </div>
+    `;
+
+    detailsDialog.showModal();
+    const list = document.getElementById('attachmentsList');
+    for (const [field, label, nameField, typeField] of [
+      ['idImage', 'صورة الهوية / الإقامة', 'idImageName', 'idImageType'],
+      ['licenseImage', 'صورة الرخصة', 'licenseImageName', 'licenseImageType']
+    ]) {
+      const item = document.createElement('div');
+      item.className = 'attachment';
+      const info = document.createElement('div');
+      info.className = 'attachment-info';
+      const title = document.createElement('strong');
+      title.textContent = label;
+      info.append(title);
+      item.append(info);
+      list.append(item);
+
+      if (app[nameField]) {
+        const url = `/api/applications/${encodeURIComponent(id)}/files/${field}`;
+        if (app[typeField]?.startsWith('image/') && app[typeField] !== 'image/heic') {
+          const preview = document.createElement('img');
+          preview.src = url;
+          preview.alt = label;
+          item.prepend(preview);
+        }
+        const link = document.createElement('a');
+        link.href = url + '?download=1';
+        link.textContent = `تنزيل ${app[nameField]}`;
+        info.append(link);
+      } else {
+        const message = document.createElement('span');
+        message.textContent = 'لم يتم إرفاق ملف';
+        info.append(message);
+      }
+    }
+  }
+
+  function exportCsv() {
+    if (!applications.length) return;
+
+    const columns = ['submittedAt', ...Object.keys(labels)];
+    const csv = [
+      columns.map(col => labels[col] || col).join(','),
+      ...applications.map(app => columns.map(col => {
+        const raw = String(app[col] ?? '');
+        const value = (/^[\s]*[=+\-@]/.test(raw) ? "'" + raw : raw).replace(/"/g, '""');
+        return `"${value}"`;
+      }).join(','))
+    ].join('\n');
+
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'driver-applications.csv';
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  body.addEventListener('click', event => {
+    const button = event.target.closest('button[data-id]');
+    if (button) showDetails(button.dataset.id);
+  });
+
+  document.getElementById('closeDialog').addEventListener('click', () => detailsDialog.close());
+  document.getElementById('exportBtn').addEventListener('click', exportCsv);
+  document.getElementById('clearBtn').addEventListener('click', async () => {
+    if (!confirm('هل تريد مسح كل الطلبات من هذه اللوحة؟')) return;
+    try {
+      const response = await fetch('/api/applications', { method: 'DELETE' });
+      if (!response.ok) throw new Error('تعذر مسح الطلبات.');
+      await refreshApplications();
+    } catch (error) {
+      dashboardError.textContent = error.message;
+      dashboardError.hidden = false;
+    }
+  });
+  searchInput.addEventListener('input', render);
+  cityFilter.addEventListener('change', render);
+
+  fetch('/api/session')
+    .then(response => response.json())
+    .then(session => { if (session.authenticated) unlockDashboard(); })
+    .catch(() => {});
+</script>
+</body>
+</html>
