@@ -317,12 +317,12 @@
       <div class="field">
         <label>صورة الإقامة / الهوية من أبشر <span class="req">*</span></label>
         <input type="file" name="idImage" accept="image/*,application/pdf" required>
-        <small class="hint">صورة واضحة من تطبيق أبشر</small>
+        <small class="hint">صورة واضحة من تطبيق أبشر، بحد أقصى 4 ميجابايت</small>
       </div>
       <div class="field">
         <label>صورة الرخصة من أبشر</label>
         <input type="file" name="licenseImage" accept="image/*,application/pdf">
-        <small class="hint">صورة الرخصة من تطبيق أبشر</small>
+        <small class="hint">صورة الرخصة من تطبيق أبشر، بحد أقصى 4 ميجابايت</small>
       </div>
     </div>
 
@@ -354,6 +354,13 @@
     const workTypes = form.querySelectorAll('input[name="workType"]:checked');
     if (workTypes.length === 0) {
       errorAlert.textContent = '⚠️ يرجى اختيار نظام العمل المناسب';
+      errorAlert.style.display = 'block';
+      return;
+    }
+
+    const files = [...form.querySelectorAll('input[type="file"]')].flatMap(input => [...input.files]);
+    if (files.some(file => file.size > 4 * 1024 * 1024)) {
+      errorAlert.textContent = 'الحد الأقصى لكل ملف 4 ميجابايت.';
       errorAlert.style.display = 'block';
       return;
     }

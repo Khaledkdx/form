@@ -64,14 +64,22 @@ test('registration, protected files, login and logout', async () => {
     for (const [name, value] of Object.entries(values)) invalidForm.append(name, value);
     invalidForm.append('idImage', new Blob(['not an image'], { type: 'image/png' }), 'invalid.png');
     assert.equal((await fetch(`${base}/api/applications`, { method: 'POST', body: invalidForm })).status, 400);
+    const oversizedForm = new FormData();
+    for (const [name, value] of Object.entries(values)) oversizedForm.append(name, value);
+    oversizedForm.append('idImage', new Blob([Buffer.alloc(4 * 1024 * 1024 + 1)], { type: 'image/png' }), 'large.png');
+    const oversized = await fetch(`${base}/api/applications`, { method: 'POST', body: oversizedForm });
+    assert.equal(oversized.status, 400);
+    assert.match((await oversized.json()).error, /4 ميجابايت/);
     form.append('idImage', new Blob([png], { type: 'image/png' }), 'id.png');
+    form.append('licenseImage', new Blob([png], { type: 'image/png' }), 'license.png');
     const submitted = await fetch(`${base}/api/applications`, { method: 'POST', body: form });
     assert.equal(submitted.status, 201);
     const { id } = await submitted.json();
     assert.equal((await fetch(`${base}/api/applications/${id}/files/idImage`)).status, 401);
     const diskDb = new DatabaseSync(path.join(dataDir, 'applications.sqlite'));
-    const stored = diskDb.prepare('SELECT id_image FROM applications WHERE id = ?').get(id);
+    const stored = diskDb.prepare('SELECT id_image, license_image FROM applications WHERE id = ?').get(id);
     assert.deepEqual(Buffer.from(stored.id_image), png);
+    assert.deepEqual(Buffer.from(stored.license_image), png);
     diskDb.close();
 
     const login = await fetch(`${base}/api/login`, {
@@ -88,11 +96,15 @@ test('registration, protected files, login and logout', async () => {
     assert.equal(applications[0].fullName, values.fullName);
     assert.equal(applications[0].workType, values.workType);
     assert.equal(applications[0].idImageName, 'id.png');
+    assert.equal(applications[0].licenseImageName, 'license.png');
 
     const attachment = await fetch(`${base}/api/applications/${id}/files/idImage`, { headers: { Cookie: cookie } });
     assert.equal(attachment.status, 200);
     assert.equal(attachment.headers.get('content-type'), 'image/png');
     assert.deepEqual(Buffer.from(await attachment.arrayBuffer()), png);
+    const licenseAttachment = await fetch(`${base}/api/applications/${id}/files/licenseImage`, { headers: { Cookie: cookie } });
+    assert.equal(licenseAttachment.status, 200);
+    assert.deepEqual(Buffer.from(await licenseAttachment.arrayBuffer()), png);
 
     const deleted = await fetch(`${base}/api/applications`, {
       method: 'DELETE', headers: { Cookie: cookie }

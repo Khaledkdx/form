@@ -1,37 +1,15 @@
 const express = require('express');
 const multer = require('multer');
-const { DatabaseSync } = require('node:sqlite');
 const { createHash, randomBytes, timingSafeEqual } = require('node:crypto');
-const { mkdirSync } = require('node:fs');
 const path = require('node:path');
+const { createStore } = require('./store');
 
 const adminPassword = process.env.ADMIN_PASSWORD;
 if (!adminPassword) {
   throw new Error('Set ADMIN_PASSWORD before starting the server.');
 }
 
-const dataDir = process.env.DATA_DIR || path.join(__dirname, 'data');
-mkdirSync(dataDir, { recursive: true });
-const db = new DatabaseSync(path.join(dataDir, 'applications.sqlite'));
-db.exec(`
-  PRAGMA journal_mode = WAL;
-  CREATE TABLE IF NOT EXISTS applications (
-    id TEXT PRIMARY KEY,
-    submitted_at TEXT NOT NULL,
-    data_json TEXT NOT NULL,
-    id_image_name TEXT NOT NULL,
-    id_image_type TEXT NOT NULL,
-    id_image BLOB NOT NULL,
-    license_image_name TEXT,
-    license_image_type TEXT,
-    license_image BLOB
-  );
-  CREATE TABLE IF NOT EXISTS sessions (
-    token_hash TEXT PRIMARY KEY,
-    expires_at TEXT NOT NULL
-  );
-  CREATE INDEX IF NOT EXISTS sessions_expiry ON sessions(expires_at);
-`);
+const store = createStore();
 
 const app = express();
 app.disable('x-powered-by');
@@ -63,23 +41,22 @@ function sessionToken(req) {
   return cookie ? cookie.slice(SESSION_COOKIE.length + 1) : '';
 }
 
-function authenticated(req) {
+async function authenticated(req) {
   const token = sessionToken(req);
   if (!/^[a-f0-9]{64}$/.test(token)) return false;
   const tokenHash = createHash('sha256').update(token).digest('hex');
-  return Boolean(db.prepare('SELECT 1 FROM sessions WHERE token_hash = ? AND expires_at > ?')
-    .get(tokenHash, new Date().toISOString()));
+  return store.hasSession(tokenHash);
 }
 
-function requireAdmin(req, res, next) {
-  if (!authenticated(req)) return res.status(401).json({ error: 'يرجى تسجيل الدخول.' });
+async function requireAdmin(req, res, next) {
+  if (!await authenticated(req)) return res.status(401).json({ error: 'يرجى تسجيل الدخول.' });
   next();
 }
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
-app.get('/api/session', (req, res) => res.json({ authenticated: authenticated(req) }));
+app.get('/api/session', async (req, res) => res.json({ authenticated: await authenticated(req) }));
 
-app.post('/api/login', sameOrigin, (req, res) => {
+app.post('/api/login', sameOrigin, async (req, res) => {
   const key = req.ip;
   const now = Date.now();
   const attempt = loginAttempts.get(key) || { count: 0, until: now + 15 * 60 * 1000 };
@@ -97,11 +74,9 @@ app.post('/api/login', sameOrigin, (req, res) => {
     return res.status(401).json({ error: 'كلمة المرور غير صحيحة.' });
   }
   loginAttempts.delete(key);
-  db.prepare('DELETE FROM sessions WHERE expires_at <= ?').run(new Date().toISOString());
   const token = randomBytes(32).toString('hex');
   const expiresAt = new Date(now + SESSION_MS).toISOString();
-  db.prepare('INSERT INTO sessions (token_hash, expires_at) VALUES (?, ?)')
-    .run(createHash('sha256').update(token).digest('hex'), expiresAt);
+  await store.createSession(createHash('sha256').update(token).digest('hex'), expiresAt);
   res.cookie(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: req.secure,
@@ -112,11 +87,10 @@ app.post('/api/login', sameOrigin, (req, res) => {
   res.json({ authenticated: true });
 });
 
-app.post('/api/logout', sameOrigin, (req, res) => {
+app.post('/api/logout', sameOrigin, async (req, res) => {
   const token = sessionToken(req);
   if (/^[a-f0-9]{64}$/.test(token)) {
-    db.prepare('DELETE FROM sessions WHERE token_hash = ?')
-      .run(createHash('sha256').update(token).digest('hex'));
+    await store.deleteSession(createHash('sha256').update(token).digest('hex'));
   }
   res.clearCookie(SESSION_COOKIE, { path: '/' });
   res.json({ authenticated: false });
@@ -135,7 +109,7 @@ const requiredFields = [
 ];
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 8 * 1024 * 1024, fieldSize: 5000, files: 2, fields: 22, parts: 24 },
+  limits: { fileSize: 4 * 1024 * 1024, fieldSize: 5000, files: 2, fields: 22, parts: 24 },
   fileFilter: (req, file, callback) => {
     if (!['idImage', 'licenseImage'].includes(file.fieldname)) {
       return callback(new Error('ملف غير متوقع.'));
@@ -154,7 +128,7 @@ function detectedType(buffer) {
   return null;
 }
 
-app.post('/api/applications', sameOrigin, upload, (req, res) => {
+app.post('/api/applications', sameOrigin, upload, async (req, res) => {
   const data = Object.fromEntries(fields.map(field => [field, String(req.body[field] || '').trim()]));
   if (requiredFields.some(field => !data[field]) || !req.files?.idImage?.[0]) {
     return res.status(400).json({ error: 'يرجى استكمال جميع البيانات والصورة المطلوبة.' });
@@ -182,30 +156,20 @@ app.post('/api/applications', sameOrigin, upload, (req, res) => {
     licenseImageName: licenseFile?.originalname || '',
     licenseImageType: licenseType || ''
   };
-  db.prepare(`INSERT INTO applications (
-    id, submitted_at, data_json, id_image_name, id_image_type, id_image,
-    license_image_name, license_image_type, license_image
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
-    id, submittedAt, JSON.stringify(application), idFile.originalname, idType,
-    idFile.buffer, licenseFile?.originalname || null, licenseType,
-    licenseFile?.buffer || null
-  );
+  await store.createApplication(application, idFile, licenseFile);
   res.status(201).json({ id });
 });
 
-app.get('/api/applications', requireAdmin, (req, res) => {
-  const applications = db.prepare('SELECT data_json FROM applications ORDER BY submitted_at DESC')
-    .all().map(row => JSON.parse(row.data_json));
+app.get('/api/applications', requireAdmin, async (req, res) => {
+  const applications = await store.listApplications();
   res.json(applications);
 });
 
-app.get('/api/applications/:id/files/:field', requireAdmin, (req, res) => {
+app.get('/api/applications/:id/files/:field', requireAdmin, async (req, res) => {
   if (!['idImage', 'licenseImage'].includes(req.params.field)) {
     return res.status(404).json({ error: 'الملف غير موجود.' });
   }
-  const prefix = req.params.field === 'idImage' ? 'id_image' : 'license_image';
-  const row = db.prepare(`SELECT ${prefix}_name AS name, ${prefix}_type AS type, ${prefix} AS data
-    FROM applications WHERE id = ?`).get(req.params.id);
+  const row = await store.getAttachment(req.params.id, req.params.field);
   if (!row?.data) return res.status(404).json({ error: 'الملف غير موجود.' });
   const filename = encodeURIComponent(row.name);
   const disposition = req.query.download === '1' || row.type === 'application/pdf' ? 'attachment' : 'inline';
@@ -214,8 +178,8 @@ app.get('/api/applications/:id/files/:field', requireAdmin, (req, res) => {
   res.send(row.data);
 });
 
-app.delete('/api/applications', sameOrigin, requireAdmin, (req, res) => {
-  db.prepare('DELETE FROM applications').run();
+app.delete('/api/applications', sameOrigin, requireAdmin, async (req, res) => {
+  await store.clearApplications();
   res.json({ ok: true });
 });
 
@@ -227,7 +191,7 @@ for (const file of publicFiles) {
 
 app.use((error, req, res, next) => {
   if (error instanceof multer.MulterError) {
-    return res.status(400).json({ error: 'الملفات كبيرة جدًا أو عددها غير مسموح. الحد 8 ميجابايت لكل ملف.' });
+    return res.status(400).json({ error: 'الملفات كبيرة جدًا أو عددها غير مسموح. الحد 4 ميجابايت لكل ملف.' });
   }
   if (error.message === 'ملف غير متوقع.') return res.status(400).json({ error: error.message });
   console.error(error);
