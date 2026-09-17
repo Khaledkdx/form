@@ -76,7 +76,12 @@ app.post('/api/login', sameOrigin, async (req, res) => {
   loginAttempts.delete(key);
   const token = randomBytes(32).toString('hex');
   const expiresAt = new Date(now + SESSION_MS).toISOString();
-  await store.createSession(createHash('sha256').update(token).digest('hex'), expiresAt);
+  try {
+    await store.createSession(createHash('sha256').update(token).digest('hex'), expiresAt);
+  } catch (error) {
+    console.error('Admin session creation failed:', error);
+    throw error;
+  }
   res.cookie(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: req.secure,
