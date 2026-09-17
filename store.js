@@ -153,6 +153,14 @@ function createStore() {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SECRET_KEY;
   if (!url || !key) throw new Error('Set SUPABASE_URL and SUPABASE_SECRET_KEY before starting production.');
+  console.info('Supabase config loaded:', {
+    urlHost: (() => {
+      try { return new URL(url).host; }
+      catch (_) { return 'invalid-url'; }
+    })(),
+    keyLength: key.length,
+    keyKind: key.startsWith('eyJ') ? 'jwt' : (key.startsWith('sb_secret_') ? 'sb_secret' : 'unknown')
+  });
   return createSupabaseStore(createClient(url, key, {
     auth: { autoRefreshToken: false, persistSession: false }
   }));
