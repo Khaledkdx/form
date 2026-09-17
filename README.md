@@ -16,7 +16,7 @@ ADMIN_PASSWORD='your-password' npm start
 ## إعداد Supabase المجاني
 
 1. أنشئ مشروع Supabase. من SQL Editor نفذ [schema.sql](supabase/schema.sql) لإنشاء الجدولين والحاوية الخاصة `driver-documents`.
-2. من Project Settings > API خذ Project URL ومفتاح `service_role` السري. لا تستخدم المفتاح العام، ولا تضع المفتاح السري في GitHub أو الواجهة.
+2. من Project Settings > API Keys خذ Project URL ومفتاح `sb_secret` السري. لا تستخدم المفتاح العام، ولا تضع المفتاح السري في GitHub أو الواجهة.
 3. الحاوية خاصة ولا توجد سياسات تسمح بالقراءة العامة. تعرض الصور فقط من API بعد دخول الإدارة.
 
 ## نشر Render المجاني
@@ -27,7 +27,7 @@ ADMIN_PASSWORD='your-password' npm start
 | --- | --- |
 | `ADMIN_PASSWORD` | كلمة مرور الإدارة |
 | `SUPABASE_URL` | عنوان مشروع Supabase |
-| `SUPABASE_SERVICE_ROLE_KEY` | مفتاح service_role السري |
+| `SUPABASE_SECRET_KEY` | مفتاح sb_secret السري |
 
 يستخدم الإنتاج Supabase تلقائيًا ويفشل بدء التشغيل إن نقصت الإعدادات. بعد النشر افتح رابط `*.onrender.com` للتسجيل و`/dashboard.html` للإدارة. لا تستخدم رابط GitHub Pages القديم حتى يُحوَّل بعد التحقق من الخدمة الجديدة.
 
