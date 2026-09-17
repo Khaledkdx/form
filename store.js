@@ -151,8 +151,10 @@ function createStore() {
   if (backend === 'sqlite' && process.env.NODE_ENV !== 'production') return createLocalStore();
   if (backend !== 'supabase') throw new Error('Production requires Supabase storage.');
   const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SECRET_KEY;
-  if (!url || !key) throw new Error('Set SUPABASE_URL and SUPABASE_SECRET_KEY before starting production.');
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
+  if (!url || !key) {
+    throw new Error('Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY before starting production.');
+  }
   console.info('Supabase config loaded:', {
     urlHost: (() => {
       try { return new URL(url).host; }
